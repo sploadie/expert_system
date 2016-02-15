@@ -1,3 +1,25 @@
 #!/usr/bin/env ruby
 
-p "Checking"
+def parse(arguments)
+	raise ArgumentError, 'Should only be one argument' if arguments.length != 1
+	file = File.open(arguments[0], "r")
+  data = file.read
+  file.close
+  array = data.split("\n")
+  # data = data.gsub  /\s+/, ' '
+ 	array.map! do |element|
+		this = element.split('#')
+		this[0].gsub(/\s+/, ' ').strip
+ 	end
+ 	array.reject! { |c| c.empty? }
+  
+  array.map! do |element|
+  	['A'..'Z'].each do |letter|
+  		element.gsub('/[#{letter}]/', 'facts[:#{letter}]')
+  	end
+  end
+  p array
+end
+
+
+parse(ARGV)
