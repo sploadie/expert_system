@@ -1,5 +1,66 @@
 #!/usr/bin/env ruby
 
+def split_on_spaces(array)
+	# Split based on spaces
+ 	array.map! do |element|
+ 		element.split(/ /)
+ 	end
+end
+
+def check_characters_valid(arrays)
+	# creates two arrays of allowed values for characters i.e. A or !A
+  alpha = ('A'..'Z').to_a
+  excl = []
+  excl = alpha.map do |element|
+  	'!' + element
+  end
+
+  arrays.each do |array|
+  	last_element = array.length - 1
+  	array.each_with_index do |element, index|
+  		element = element.gsub(/[()]/, '')
+	  	if excl.include?(element) || alpha.include?(element)
+	  		next
+	  	elsif element == '+' || element == '|' || element == '^'
+	  		next
+	  	else
+	  		raise ArgumentError, "Invalid input in question, #{element}"
+	  	end
+	  end
+  end
+end
+
+def format_letters(arrays)
+	# Turn letters into format for being called from hash A => facts[:A]
+	# p arrays
+  arrays.map! do |array|
+  	array.map! do |element|
+  		# p element
+	  	element = element.gsub(/([A-Z])/, 'facts[:\1]')
+	  	element = element.gsub(/\+/, '&&')
+	  	# p element
+	  end
+	end
+end
+
+def eval_array(arrays)
+	facts = {}
+	('A'..'Z').each {|letter| facts[letter] = false}
+	# Join arrays and evaluate
+	# puts "array"
+	# p arrays
+  arrays.each do |array|
+		string = array.join(" ")
+	  begin
+			eval string
+		rescue SyntaxError => se
+		  raise "Rescue from syntax error #{string}"
+		rescue Exception => e 
+			raise "Rescue exception #{string}"
+		end
+	end
+end
+
 def parse(arguments)
 	raise ArgumentError, 'Should only be one argument' if arguments.length != 1
 	file = File.open(arguments[0], "r")
@@ -8,18 +69,62 @@ def parse(arguments)
   array = data.split("\n")
   # data = data.gsub  /\s+/, ' '
  	array.map! do |element|
+ 		if element.nil? || element.empty?
+ 			next
+ 		end
 		this = element.split('#')
 		this[0].gsub(/\s+/, ' ').strip
  	end
- 	array.reject! { |c| c.empty? }
+ 	array.reject! { |c| c.nil? || c.empty? }
   
-  array.map! do |element|
-  	['A'..'Z'].each do |letter|
-  		element.gsub('/[#{letter}]/', 'facts[:#{letter}]')
-  	end
-  end
-  p array
+ 	queries    = array.pop
+ 	statements = array.pop
+ 	rule_qs    = []
+ 	rule_ans   = []
+
+ 	# Split the two halves
+ 	array.each do |element|
+ 		elements = element.split('=>')
+ 		if (elements[0].strip.empty? || elements[1].strip.empty?)
+  		raise ArgumentError, 'Question is empty, please format file correctly'
+ 		end
+ 		rule_qs.push(elements[0].strip)
+ 		rule_ans.push(elements[1].strip)
+ 		# if (elements[2] != nil)
+ 		# 	exit
+ 		# end
+ 	end
+
+ 	split_on_spaces(rule_qs)
+ 	split_on_spaces(rule_ans)
+
+ 	# if and only if scenario, doubles rule opposite sides
+ 	rule_qs.map!.with_index do |array, index|
+ 		if array[-1] == '<'
+ 			array.pop
+ 			rule_qs.push(rule_ans[index].dup)
+ 			rule_ans.push(array.dup)
+ 		end
+ 		array
+ 	end
+
+ 	check_characters_valid(rule_qs)
+ 	check_characters_valid(rule_ans)
+
+ 	test_ans = rule_ans.map(&:clone)
+
+ 	format_letters(rule_qs)
+ 	format_letters(test_ans)
+
+	eval_array(rule_qs)
+	# eval_array(test_ans)
+
+	rule_qs.map! do |array|
+		array.join(" ")
+	end
+	p rule_qs
+	p rule_ans
+
 end
-
-
+	
 parse(ARGV)
