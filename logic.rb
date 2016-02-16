@@ -22,6 +22,7 @@ def logic_this(arg_facts, arg_rules, query)
   new_rulesets = []
   rulesets = [arg_rules]
   i = 0
+  # Creates all possible rule scenarios - OR/XOR multiplied by each other
   while rulesets[i] != nil
     ruleset = rulesets[i]
     new_ruleset = []
@@ -95,7 +96,10 @@ def logic_this(arg_facts, arg_rules, query)
   final_facts = all_facts.first()
   all_facts.each do |ruleset_facts|
     Facts::LETTERS.each do |let|
-      final_facts[let] = :ambiguous if final_facts[let] != ruleset_facts[let]
+      final_fact_val   = final_facts[let]   ? true : false
+      ruleset_fact_val = ruleset_facts[let] ? true : false
+      final_facts[let] = false if final_facts[let].nil? && ruleset_fact_val == false
+      final_facts[let] = :ambiguous if final_fact_val != ruleset_fact_val
     end
   end
 
@@ -117,15 +121,15 @@ def logic_this(arg_facts, arg_rules, query)
 end
 
 # Examples
-$VERBOSE = true
-$SLOW = true
-arg_facts = [:A, :B]
-# Not Flawed
-# arg_rules = {'facts[:A]' => [{C: true}, {D: true}]}
-# arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}]}
-arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}], 'facts[:Y]' => [{M: true}, {N: true}]}
-# Flawed
-# arg_rules = {'facts[:B]' => [{B: false}]}
-query = [:A, :B, :C, :D, :M, :N, :Z]
+# $VERBOSE = true
+# $SLOW = true
+# arg_facts = [:A, :B]
+# # Not Flawed
+# # arg_rules = {'facts[:A]' => [{C: true}, {D: true}]}
+# # arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}]}
+# arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}], 'facts[:Y]' => [{M: true}, {N: true}]}
+# # Flawed
+# # arg_rules = {'facts[:B]' => [{B: false}]}
+# query = [:A, :B, :C, :D, :M, :N, :Z]
 
-logic_this(arg_facts, arg_rules, query)
+# logic_this(arg_facts, arg_rules, query)
