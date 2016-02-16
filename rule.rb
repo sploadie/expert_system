@@ -4,7 +4,7 @@ class Rule
   def initialize(condition, reaction)
     raise 'condition must be a string' unless condition.is_a? String
     raise 'reaction must be an array'  unless reaction.is_a?  Hash
-    @condition = condition
+    @condition = condition.strip
     @reaction  = reaction
   end
 
