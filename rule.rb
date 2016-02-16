@@ -29,7 +29,7 @@ class Rule
   def to_s
     # "Condition: (#{@condition}) :: Reaction: #{@reaction}"
     c_str = @condition.gsub /facts\[\:(.)\]/, '\1'
-    r_str = @reaction.map {|k,v| "#{k}::#{v}"}
+    r_str = @reaction.map {|k,v| "#{k}=#{v}"}
     "#{c_str} => #{r_str.join(' ')}"
   end
 

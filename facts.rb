@@ -53,8 +53,7 @@ class Facts
   def to_s
     @hash.map do |let, val|
       next if val.nil?
-      val = val.to_s.to_sym
-      "#{let}:#{val.inspect}"
+      "#{let}=#{val}"
     end.compact.join(' ')
   end
 
@@ -62,13 +61,8 @@ class Facts
     query.map do |let|
       verify_letter(let)
       val = @hash[let]
-      case val
-      when nil
-        val = :nil
-      when true, false
-        val = val.to_s.to_sym
-      end
-      "#{let}:#{val.inspect}"
+      val = :nil if val.nil?
+      "#{let}=#{val}"
     end.compact.join(' ')
   end
 
