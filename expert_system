@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require_relative 'logic'
+require_relative 'color'
 
 def change_answer_format(answer, alpha, excl)
 	array_answer = []
@@ -98,9 +99,8 @@ def eval_array(arrays)
 	end
 end
 
-def parse(arguments)
-	raise 'should only be one argument' if arguments.length != 1
-	file = File.open(arguments[0], "r")
+def parse(file_path)
+	file = File.open(file_path, "r")
   data = file.read
   file.close
   array = data.split("\n")
@@ -229,15 +229,42 @@ def parse(arguments)
 	queries.compact!
 	# should you check for multiple statement or queries that are the same 
 	logic_this(statements.uniq, final_answer_format, queries.uniq)
-
 end
 
-begin
-	#handle VERBOSE and SLOW
-	$VERBOSE = true
-	parse(ARGV)
-rescue Exception => e
-	puts "Parsing Error: #{e.message}" unless e.message == 'exit'
+#handle VERBOSE and SLOW
+while true do
+	case ARGV[0]
+	when '-v'
+    $VERBOSE = true
+    ARGV.shift
+    next
+	when '-s'
+    $SLOW = true
+    ARGV.shift
+    next
+	when '-vs', '-sv'
+    $VERBOSE = true
+    $SLOW = true
+    ARGV.shift
+    next
+	when '--'
+    ARGV.shift
+    break
+	end
+  break
 end
 
+puts "Warning: SLOW option ignored when output is not VERBOSE\n".red if $SLOW && !$VERBOSE
 
+if ARGV.count > 0
+	ARGV.each do |file_path|
+		begin
+			puts "---------------> File: #{file_path}".light_blue
+			parse(file_path)
+		rescue Exception => e
+			puts "Parsing Error: #{e.message}".red unless e.message == 'exit'
+		end
+	end
+else
+	puts 'Need file paths!'
+end

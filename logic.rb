@@ -1,5 +1,7 @@
 require_relative 'facts'
 require_relative 'rule'
+require_relative 'color'
+
 $VERBOSE = false
 $SLOW = false
 
@@ -78,7 +80,7 @@ def logic_this(arg_facts, arg_rules, query)
       ruleset_facts
     end
   rescue Exception => e
-    puts 'Rules Error: ' + e.message
+    puts "Rules Error: #{e.message}".red
     exit
   end
 
@@ -98,7 +100,6 @@ def logic_this(arg_facts, arg_rules, query)
     Facts::LETTERS.each do |let|
       final_fact_val   = final_facts[let]   ? true : false
       ruleset_fact_val = ruleset_facts[let] ? true : false
-      final_facts[let] = false if final_facts[let].nil? && ruleset_fact_val == false
       final_facts[let] = :ambiguous if final_fact_val != ruleset_fact_val
     end
   end
@@ -116,8 +117,7 @@ def logic_this(arg_facts, arg_rules, query)
     final_facts[let] = false if final_facts[let].nil?
   end
 
-  puts 'Query Respone:'
-  puts final_facts.facts_for(query)
+  puts 'Query Response: '.green + final_facts.facts_for(query)
 end
 
 # Examples

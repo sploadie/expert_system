@@ -1,3 +1,5 @@
+require_relative 'color'
+
 class Facts
   LETTERS = ('A'..'Z').map(&:to_sym)
 
@@ -61,9 +63,17 @@ class Facts
     query.map do |let|
       verify_letter(let)
       val = @hash[let]
-      val = :nil if val.nil?
+      val = false if val.nil?
+      case val
+      when true
+        val = val.to_s.green
+      when false
+        val = val.to_s.red
+      when :ambiguous
+        val = val.to_s.light_blue
+      end
       "#{let}=#{val}"
-    end.compact.join(' ')
+    end.compact.join(', ')
   end
 
   def clone
