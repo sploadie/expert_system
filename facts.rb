@@ -53,6 +53,21 @@ class Facts
   def to_s
     @hash.map do |let, val|
       next if val.nil?
+      val = val.to_s.to_sym
+      "#{let}:#{val.inspect}"
+    end.compact.join(' ')
+  end
+
+  def facts_for(query)
+    query.map do |let|
+      verify_letter(let)
+      val = @hash[let]
+      case val
+      when nil
+        val = :nil
+      when true, false
+        val = val.to_s.to_sym
+      end
       "#{let}:#{val.inspect}"
     end.compact.join(' ')
   end
