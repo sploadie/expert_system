@@ -79,8 +79,8 @@ def parse(arguments)
   
  	queries    = array.pop
  	statements = array.pop
- 	rule_qs    = []
- 	rule_ans   = []
+ 	list_questions    = []
+ 	list_answers   = []
 
  	# Split the two halves
  	array.each do |element|
@@ -88,43 +88,152 @@ def parse(arguments)
  		if (elements[0].strip.empty? || elements[1].strip.empty?)
   		raise ArgumentError, 'Question is empty, please format file correctly'
  		end
- 		rule_qs.push(elements[0].strip)
- 		rule_ans.push(elements[1].strip)
+ 		list_questions.push(elements[0].strip)
+ 		list_answers.push(elements[1].strip)
  		# if (elements[2] != nil)
  		# 	exit
  		# end
  	end
 
- 	split_on_spaces(rule_qs)
- 	split_on_spaces(rule_ans)
+ 	split_on_spaces(list_questions)
+ 	split_on_spaces(list_answers)
 
  	# if and only if scenario, doubles rule opposite sides
- 	rule_qs.map!.with_index do |array, index|
+ 	list_questions.map!.with_index do |array, index|
  		if array[-1] == '<'
  			array.pop
- 			rule_qs.push(rule_ans[index].dup)
- 			rule_ans.push(array.dup)
+ 			list_questions.push(list_answers[index].dup)
+ 			list_answers.push(array.dup)
  		end
  		array
  	end
 
- 	check_characters_valid(rule_qs)
- 	check_characters_valid(rule_ans)
+ 	check_characters_valid(list_questions)
+ 	check_characters_valid(list_answers)
 
- 	test_ans = rule_ans.map(&:clone)
+ 	test_ans = list_answers.map(&:clone)
 
- 	format_letters(rule_qs)
+ 	format_letters(list_questions)
  	format_letters(test_ans)
 
-	eval_array(rule_qs)
+	eval_array(list_questions)
 	# eval_array(test_ans)
 
-	rule_qs.map! do |array|
+	list_questions.map! do |array|
 		array.join(" ")
 	end
-	p rule_qs
-	p rule_ans
+	##FIXME add bracket check to list_answers
+	list_answers.map! do |answer|
+		answer = answer.join(" ")
+	 	answer.gsub!(/[+]/, '')
+		array = answer.split(/[()]/)
+		new_array = []
+		while array.count > new_array.count
+			new_array = []
+			array.each do |element|
+				if element.include?('|')
+					splitted = element.split(/[|]/, 2).map(&:strip)
+					new_array += splitted
+					next
+				elsif element.include?('^')
+					splitted = element.split(/[\^]/, 2).map(&:strip)
+					before_change = splitted[0].dup
+					splitted[0] = splitted[0] + " " + change_signs(splitted[1])
+					splitted[1] = splitted[1] + " " + change_signs(before_change)
+					new_array += splitted
+					next
+				end
+				new_array << element
+			end
+			array,new_array = new_array,array
+		end
+		array
+	end
 
+	# Changes list of questions and answers to format needed for logic, {Q: [{A}, {A}, {A}], Q: [{A}, {A}, {A}]}
+	final_answer_format = {}
+	list_answers.each_with_index do |answer, index|
+		while final_answer_format[list_questions[index]]
+			list_questions[index] += ' '
+		end
+		final_answer_format[list_questions[index]] = change_answer_format(answer)
+	end
+	p final_answer_format
 end
 	
+def change_answer_format(answer)
+	array_answer = []
+
+	# creates two arrays of allowed values for characters i.e. A or !A
+  alpha = ('A'..'Z').to_a
+  excl = []
+  excl = alpha.map do |element|
+  	'!' + element
+  end
+
+  # creates an array of hashes of different possible sets of answers
+	answer.each do |string|
+		string_hash = {}
+  	split_string = string.split(" ")
+  	split_string.each do |element|
+  		if excl.include?(element)
+				element = element.gsub("!", "")
+  			string_hash[element.to_sym] = false
+			elsif alpha.include?(element)
+  			string_hash[element.to_sym] = true
+			end
+  	end
+  	array_answer.push(string_hash)
+	end
+
+	array_answer
+end
+
+def change_signs(string)
+	# creates two arrays of allowed values for characters i.e. A or !A
+  alpha = ('A'..'Z').to_a
+  excl = []
+  excl = alpha.map do |element|
+  	'!' + element
+  end
+  # changes answers from positive to negative or vice versa
+  split_string = string.split(" ")
+  split_string.map! do |element|
+		if excl.include?(element)
+			element = element.gsub("!", "")
+		elsif alpha.include?(element)
+			element = "!" + element
+		end
+		element
+	end
+	return split_string.join(" ")
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 parse(ARGV)
