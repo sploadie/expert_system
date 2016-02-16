@@ -1,5 +1,40 @@
 #!/usr/bin/env ruby
 
+def change_answer_format(answer, alpha, excl)
+	array_answer = []
+
+  # creates an array of hashes of different possible sets of answers
+	answer.each do |string|
+		string_hash = {}
+  	split_string = string.split(" ")
+  	split_string.each do |element|
+  		if excl.include?(element)
+				element = element.gsub("!", "")
+  			string_hash[element.to_sym] = false
+			elsif alpha.include?(element)
+  			string_hash[element.to_sym] = true
+			end
+  	end
+  	array_answer.push(string_hash)
+	end
+
+	array_answer
+end
+
+def change_signs(string, alpha, excl)
+  # changes answers from positive to negative or vice versa
+  split_string = string.split(" ")
+  split_string.map! do |element|
+		if excl.include?(element)
+			element = element.gsub("!", "")
+		elsif alpha.include?(element)
+			element = "!" + element
+		end
+		element
+	end
+	return split_string.join(" ")
+end
+
 def split_on_spaces(array)
 	# Split based on spaces
  	array.map! do |element|
@@ -67,7 +102,8 @@ def parse(arguments)
   data = file.read
   file.close
   array = data.split("\n")
-  # data = data.gsub  /\s+/, ' '
+
+  # Removes comments from file
  	array.map! do |element|
  		if element.nil? || element.empty?
  			next
@@ -81,6 +117,13 @@ def parse(arguments)
  	statements = array.pop
  	list_questions    = []
  	list_answers   = []
+
+	# creates two arrays of allowed values for characters i.e. A or !A
+  alpha = ('A'..'Z').to_a
+  excl = []
+  excl = alpha.map do |element|
+  	'!' + element
+  end
 
  	# Split the two halves
  	array.each do |element|
@@ -123,6 +166,8 @@ def parse(arguments)
 		array.join(" ")
 	end
 	##FIXME add bracket check to list_answers
+
+	# Runs different answer scenarios and returns an array of possible ones
 	list_answers.map! do |answer|
 		answer = answer.join(" ")
 	 	answer.gsub!(/[+]/, '')
@@ -138,8 +183,8 @@ def parse(arguments)
 				elsif element.include?('^')
 					splitted = element.split(/[\^]/, 2).map(&:strip)
 					before_change = splitted[0].dup
-					splitted[0] = splitted[0] + " " + change_signs(splitted[1])
-					splitted[1] = splitted[1] + " " + change_signs(before_change)
+					splitted[0] = splitted[0] + " " + change_signs(splitted[1], alpha, excl)
+					splitted[1] = splitted[1] + " " + change_signs(before_change, alpha, excl)
 					new_array += splitted
 					next
 				end
@@ -156,84 +201,38 @@ def parse(arguments)
 		while final_answer_format[list_questions[index]]
 			list_questions[index] += ' '
 		end
-		final_answer_format[list_questions[index]] = change_answer_format(answer)
-	end
-	p final_answer_format
-end
-	
-def change_answer_format(answer)
-	array_answer = []
-
-	# creates two arrays of allowed values for characters i.e. A or !A
-  alpha = ('A'..'Z').to_a
-  excl = []
-  excl = alpha.map do |element|
-  	'!' + element
-  end
-
-  # creates an array of hashes of different possible sets of answers
-	answer.each do |string|
-		string_hash = {}
-  	split_string = string.split(" ")
-  	split_string.each do |element|
-  		if excl.include?(element)
-				element = element.gsub("!", "")
-  			string_hash[element.to_sym] = false
-			elsif alpha.include?(element)
-  			string_hash[element.to_sym] = true
-			end
-  	end
-  	array_answer.push(string_hash)
+		final_answer_format[list_questions[index]] = change_answer_format(answer, alpha, excl)
 	end
 
-	array_answer
-end
-
-def change_signs(string)
-	# creates two arrays of allowed values for characters i.e. A or !A
-  alpha = ('A'..'Z').to_a
-  excl = []
-  excl = alpha.map do |element|
-  	'!' + element
-  end
-  # changes answers from positive to negative or vice versa
-  split_string = string.split(" ")
-  split_string.map! do |element|
-		if excl.include?(element)
-			element = element.gsub("!", "")
-		elsif alpha.include?(element)
-			element = "!" + element
+	statements = statements.split("")
+	statements.map!.with_index do |element, index|
+		p element
+		if index == 0 && element != '='
+			raise "Statements line must begin with an equals sign"
+		elsif index == 0
+			next
+		elsif !alpha.include?(element)
+			raise "Statement can only include capital alphabetical characters"
 		end
-		element
+		element.to_sym
 	end
-	return split_string.join(" ")
+	queries = queries.split("")
+	queries.map!.with_index do |element, index|
+		p element
+		if index == 0 && element != '?'
+			raise "Statements line must begin with an equals sign"
+		elsif index == 0
+			next
+		elsif !alpha.include?(element)
+			raise "Statement can only include capital alphabetical characters"
+		end
+		element.to_sym
+	end
+	statements.compact!
+	queries.compact!
+	# should you check for multiple statement or queries that are the same 
+	logic_this(final_answer_format, queries, statements)
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 parse(ARGV)
