@@ -27,7 +27,10 @@ class Rule
   end
 
   def to_s
-    "Condition: (#{@condition}) :: Reaction: #{@reaction}"
+    # "Condition: (#{@condition}) :: Reaction: #{@reaction}"
+    c_str = @condition.gsub /facts\[\:(.)\]/, '\1'
+    r_str = @reaction.map {|k,v| "#{k}::#{v}"}
+    "#{c_str} => #{r_str.join(' ')}"
   end
 
   def method_missing(method, *args)

@@ -1,6 +1,7 @@
 require_relative 'facts'
 require_relative 'rule'
 $VERBOSE = false
+$SLOW = false
 
 # Check this out
 
@@ -38,6 +39,7 @@ def logic_this(arg_facts, arg_rules, query)
   end
 
   if $VERBOSE
+    sleep 0.5 if $SLOW
     puts ''
     puts 'Rulesets:'
     puts '@==================@'
@@ -50,6 +52,7 @@ def logic_this(arg_facts, arg_rules, query)
       if $VERBOSE
         puts 'Rules:'
         puts ruleset.map(&:to_s).join("\n")
+        sleep 0.5 if $SLOW
         puts ''
         puts 'Facts:'
       end
@@ -63,7 +66,7 @@ def logic_this(arg_facts, arg_rules, query)
 
         if $VERBOSE
           puts '-> ' + temp_facts.to_s
-          sleep 1
+          sleep 0.5 if $SLOW
         end
       end
 
@@ -83,6 +86,7 @@ def logic_this(arg_facts, arg_rules, query)
     # puts 'All Ruleset Facts:'
     # puts all_facts.map(&:to_s).join("\n")
     puts '@==================@'
+    sleep 0.5 if $SLOW
     puts ''
     puts 'Unique Ruleset Facts:'
     puts all_facts.map(&:to_s).uniq.join("\n")
@@ -96,9 +100,11 @@ def logic_this(arg_facts, arg_rules, query)
   end
 
   if $VERBOSE
+    sleep 0.5 if $SLOW
     puts ''
     puts 'Final Facts:'
     puts final_facts.to_s
+    sleep 0.5 if $SLOW
     puts ''
   end
 
@@ -112,11 +118,12 @@ end
 
 # Examples
 $VERBOSE = true
+$SLOW = true
 arg_facts = [:A, :B]
 # Not Flawed
-arg_rules = {'facts[:A]' => [{C: true}, {D: true}]}
+# arg_rules = {'facts[:A]' => [{C: true}, {D: true}]}
 # arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}]}
-# arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}], 'facts[:Y]' => [{M: true}, {N: true}]}
+arg_rules = {'facts[:A]' => [{X: true}, {Y: true}], 'facts[:X]' => [{C: true}, {D: true}], 'facts[:Y]' => [{M: true}, {N: true}]}
 # Flawed
 # arg_rules = {'facts[:B]' => [{B: false}]}
 query = [:A, :B, :C, :D, :M, :N, :Z]
