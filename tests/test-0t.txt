@@ -1,0 +1,8 @@
+# This is a comment.
+
+A => B | C
+B <=> C
+
+=A
+
+?ABC

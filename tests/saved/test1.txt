@@ -1,0 +1,6 @@
+# Simple test
+!A + B | !C ^ D => A
+
+=A
+
+?TEST

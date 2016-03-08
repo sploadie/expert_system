@@ -1,0 +1,9 @@
+# This is a comment.
+
+a => d ^ e
+D + !E => B
+!D + E => C
+
+=A
+
+?ABC

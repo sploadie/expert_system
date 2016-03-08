@@ -1,0 +1,10 @@
+# This is a comment.
+
+A => B | C
+!B <=> C
+B <=> !C
+(B + !C)( | )(!B + C) => D
+
+=A
+
+?ABCD
