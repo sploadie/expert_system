@@ -62,7 +62,7 @@ def logic_this(arg_facts, arg_rules, query)
 
       ruleset_facts = original_facts.clone
       reaction_occured = true
-      temp_facts = nil
+      temp_facts = :nothing
       while ruleset_facts.to_s != temp_facts.to_s
         temp_facts = ruleset_facts.clone
         ruleset.each { |rule| rule.apply_to(ruleset_facts) }

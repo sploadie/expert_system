@@ -53,7 +53,7 @@ def check_characters_valid(arrays, alpha, excl)
 	  	elsif element == '+' || element == '|' || element == '^'
 	  		next
 	  	else
-	  		raise "invalid input in question, #{element}"
+			raise "invalid input in question, '#{element}'"
 	  	end
 	  end
   end
@@ -228,7 +228,7 @@ def parse(file_path)
 	statements.compact!
 	queries.compact!
 	# should you check for multiple statement or queries that are the same 
-	logic_this(statements.uniq, final_answer_format, queries.uniq)
+	logic_this(statements.uniq, final_answer_format, queries.uniq.sort)
 end
 
 #handle VERBOSE and SLOW
@@ -262,7 +262,21 @@ if ARGV.count > 0
 			puts "---------------> File: #{file_path}".light_blue
 			parse(file_path)
 		rescue Exception => e
-			puts "Parsing Error: #{e.message}".red unless e.message == 'exit'
+			next if e.message == 'exit'
+			message = e.message
+			if message.include?('(eval):1: syntax error, ')
+				message = message.split('syntax error, ').last()
+				# if message.include?("\n")
+				# 	message = message.split("\n")
+				# 	message.pop
+				# 	message = message.join("\n")
+				# 	message.gsub!('&&', '+')
+				# 	message.gsub!(/facts\[:(.*?)\]/, '\1')
+				# end
+				puts "Syntax Error: #{message}".red
+			else
+				puts "Parsing Error: #{message}".red
+			end
 		end
 	end
 else
