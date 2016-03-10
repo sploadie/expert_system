@@ -1,9 +1,0 @@
-# This is a comment.
-
-A => B | C
-B => D | E
-D => F | G
-
-=A
-
-?ABCDEFG

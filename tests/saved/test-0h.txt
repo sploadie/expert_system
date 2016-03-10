@@ -1,8 +1,0 @@
-# This is a comment.
-
-!A | C => B
-A => C
-
-=A
-
-?ABC

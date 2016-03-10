@@ -1,8 +1,0 @@
-# This is a comment.
-
-!(A + B) => B
-!(A + B) => C
-
-=A
-
-?ABC
