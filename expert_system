@@ -76,6 +76,7 @@ def format_letters(arrays)
 		# p element
 		element = element.gsub(/([A-Z])/, 'facts[:\1]')
 		element = element.gsub(/\+/, '&&')
+		element = element.gsub(/\|/, '||')
 		# p element
 	  end
 	end
@@ -285,6 +286,7 @@ if ARGV.count > 0
 			if message.include?('(eval):1: syntax error, ')
 				message = message.split('syntax error, ').last()
 				message.gsub!('&&', '+')
+				message.gsub!('||', '|')
 				message.gsub!(/facts\[:(.*?)\]/, '\1')
 				message.sub!(/\n([ \^]*?)$/, '')
 				message.sub!(', expecting', ' in rule, expecting')
