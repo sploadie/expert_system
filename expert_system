@@ -6,18 +6,19 @@ $MASTER_FACTS = nil
 
 def change_answer_format(answer, alpha, excl)
 	array_answer = []
-
   # creates an array of hashes of different possible sets of answers
 	answer.each do |string|
 		string_hash = {}
 	split_string = string.split(" ")
 	split_string.each do |element|
 		if excl.include?(element)
-				element = element.gsub("!", "")
+			element = element.gsub("!", "")
+      raise "#{element} was set to true and then false" if (string_hash[element.to_sym] == true)
 			string_hash[element.to_sym] = false
-			elsif alpha.include?(element)
+		elsif alpha.include?(element)
+      raise "#{element} was set to false and then true" if (string_hash[element.to_sym] == false)
 			string_hash[element.to_sym] = true
-			end
+		end
 	end
 	array_answer.push(string_hash)
 	end
@@ -131,13 +132,14 @@ def parse(file_path)
 			array[index] = ''
 		end
 	end
-	raise "file contains no statement line" if statements.nil?
-	raise "file contains no query line"     if queries.nil?
-	array.reject! { |c| c.empty? }
 
 	if $MASTER_FACTS != nil
 		statements = $MASTER_FACTS
 	end
+
+	raise "file contains no statement line" if statements.nil?
+	raise "file contains no query line"     if queries.nil?
+	array.reject! { |c| c.empty? }
 
 	list_questions = []
 	list_answers   = []
@@ -187,7 +189,6 @@ def parse(file_path)
 	list_questions.map! do |array|
 		array.join(" ")
 	end
-
 	# Runs different answer scenarios and returns an array of possible ones
 	list_answers.map! do |answer|
 		answer = answer.join(" ")
@@ -214,7 +215,6 @@ def parse(file_path)
 		end
 		array
 	end
-
 	# Changes list of questions and answers to format needed for logic, {Q: [{A}, {A}, {A}], Q: [{A}, {A}, {A}]}
 	final_answer_format = {}
 	list_answers.each_with_index do |answer, index|
