@@ -63,7 +63,7 @@ def check_answers_for_parentheses(array)
 	array.each do |element|
 		element = element.join(" ")
 		if element.include?('(') || element.include?(')')
-			raise "answer cannot contain parentheses, #{element}"
+			raise "answer '#{element}' contains parentheses"
 		end
 	end
 end
@@ -120,11 +120,11 @@ def parse(file_path)
 	array.each_with_index do |line, index|
 		if line[0] == '='
 			raise "file contains more than one statement line" unless statements.nil?
-			statements = line
+			statements = line.gsub(' ', '')
 			array[index] = ''
 		elsif line[0] == '?'
 			raise "file contains more than one query line"     unless queries.nil?
-			queries = line
+			queries = line.gsub(' ', '')
 			array[index] = ''
 		end
 	end
@@ -287,6 +287,7 @@ if ARGV.count > 0
 				message.gsub!('&&', '+')
 				message.gsub!(/facts\[:(.*?)\]/, '\1')
 				message.sub!(/\n([ \^]*?)$/, '')
+				message.sub!(', expecting', ' in rule, expecting')
 				# if message.include?("\n")
 				# 	message = message.split("\n")
 				# 	message.pop

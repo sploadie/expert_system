@@ -1,5 +1,7 @@
 # This is a comment.
 
-A => B
+#A => B
 
-?ABC
+?#ABC
+
+=#A
