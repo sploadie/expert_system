@@ -1,8 +1,9 @@
 # This is a comment.
 
-A => !B
-!B => C
-
 =A
 
-?abc
+A => B
+
+?ABC
+
+B => C
